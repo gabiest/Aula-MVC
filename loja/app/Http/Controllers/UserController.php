@@ -3,25 +3,34 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr; //Doc.-https://laravel.com/docs/master/helpers 
-use App\User;
-use Spatie\Permission\Models\Role;
-use DB;
-use Hash;
-
+use Illuminate\Support\Arr; //Doc.-https://laravel.com/docs/master/helpers
+use App\Models\User;
+use Spatie\Permission\Models\Role; //classe de perfil (define os perfis que tem acesso a determinada parte da aplicação)
+use DB; //banco de dados
+use Hash; //criptografia
 
 class UserController extends Controller
 {
+    public function __construct() //quando executado o método chama o construtor dele
+    {
+        $this->middleware('permission:user-list|user-creat|user-edit|user-delete', //middleware é um software que fornece serviços e recursos comuns a aplicações.
+                         ['only' => ['index', 'store']]);
+        $this->middleware('permission:user-create',
+                         ['only' => ['create', 'store']]);
+        $this->middleware('permission:user-edit',
+                         ['only' => ['edit', 'update']]);
+        $this->middleware('permission:user-delete',
+                         ['only' => ['destroy']]);
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request) //página inicial CRUD controle de usuário
     {
-        //
-        $data=User::orderBy('id','DESC')->paginate(5);
-        returnview('users.index',compact('data'))->with('i',($request->input('page',1)-1)*5);
+        $data = User::orderBy('id','DESC')->paginate(5);
+        return view('users.index',compact('data'))->with('i',($request->input('page',1)-1)*5);
     }
 
     /**
@@ -31,11 +40,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
-
-        $roles = Role::pluck('name','name')->all();
-        return view('users.create',compact('roles'));
-
+        $roles = Role::pluck('name', 'name')->all();
+        return view('users.create', compact('roles'));
     }
 
     /**
@@ -47,16 +53,14 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,['name'=>'required',
-                                  'email'=>'required|email|unique:users,email',
-                                  'password'=>'required|same:confirm-password',
+                                  'email'=>'required|email|unique:users,email', //email tem que ser único
+                                  'password'=>'required|same:confirm-password', //senha confirmada, tem que bater em ambas
                                   'roles'=>'required']);
-
-        $input=$request->all();
-        $input['password']=Hash::make($input['password']);
-        $user=User::create($input);
-        $user->assignRole($request->input('roles'));
-        return redirect()->route('users.index')->with('success','Usuáriocriadocomsucesso');
-
+        $input = $request->all();
+        $input['password'] = Hash::make($input['password']);
+        $user = User::create($input); //cria o usuário
+        $user->assignRole($request->input('roles')); //delega o perfil do usuário
+        return redirect()->route('users.index')->with('success','Usuário criado com sucesso!');
     }
 
     /**
@@ -67,8 +71,8 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user=User::find($id);
-        return view('users.show', compact('user'));
+        $user = User::find($id); //mostra o usuário com base no id
+        return view('users.show', compact('user')); //retorna os dados do usuário respectivo
     }
 
     /**
@@ -95,24 +99,21 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request,['name'=>'required',
-                                  'email'=>'required|email|unique:users,email,'.$id,
-                                  'password'=>'same:confirm-password',
-                                   'roles'=>'required']);
-        
-        $input=$request->all();
-        
-        if(!empty($input['password']))
-            {$input['password']=Hash::make($input['password']);
+                                  'email'=>'required|email|unique:users,email,'. $id, //passando o id para atualizar o mesmo usuário
+                                  'password'=>'same:confirm-password','roles'=>'required']);
+        $input = $request->all(); //se não foi criada uma nova senha, mantém a mesma do banco
 
-        }else{
-            $input=Arr::except($input,array('password'));
+        if(!empty($input['password'])) {
+            $input['password']=Hash::make($input['password']);
+        } else {
+            $input = Arr::except($input,array('password')); //remove tudo menos a senha
         }
-        
-        $user=User::find($id);$user->update($input);
-        DB::table('model_has_roles')->where('model_id',$id)->delete();
-        $user->assignRole($request->input('roles'));
 
-        return redirect()->route('users.index')->with('success','Usuário atualizado com sucesso');
+        $user = User::find($id);
+        $user->update($input); //update baseado no input tratado anteriormente
+        DB::table('model_has_roles')->where('model_id',$id)->delete(); //apagar id do pacote model_has_roles
+        $user->assignRole($request->input('roles')); //atribui novo perfil pro usuário
+        return redirect()->route('users.index')->with('success','Usuário atualizado com sucesso!'); //printa mensagem de sucesso
     }
 
     /**
@@ -123,7 +124,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        User::find($id)->delete();
-        return redirect()->route('users.index')->with('success','Usuário removido com sucesso');
+        User::find($id)->delete(); //remove de acordo com o id
+        return redirect()->route('users.index')->with('success','Usuário removido com sucesso!');
     }
 }
