@@ -68,5 +68,3 @@
 </table>
 
 {!! $cli->render() !!}
-
-@endsection

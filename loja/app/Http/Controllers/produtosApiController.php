@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Produtos;
 
-class produtosApiController extends Controller
+class ProdutosApiController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,12 +35,9 @@ class produtosApiController extends Controller
      */
     public function store(Request $request)
     {
-        
         $json = $request->getContent();
 
-        return Produtos::create(
-                                json_decode($json, JSON_OBJECT_AS_ARRAY)
-                                );
+        return Produtos::create(json_decode($json, JSON_OBJECT_AS_ARRAY));
     }
 
     /**
@@ -51,10 +49,11 @@ class produtosApiController extends Controller
     public function show($id)
     {
         $produto = Produtos::find($id);
-        if($produto){
+
+        if($produto) {
             return $produto;
-        }else{
-            return json_encode([$id =>'não existe']);
+        } else {
+            return json_encode([$id => 'não existe!']);
         }
     }
 
@@ -79,24 +78,19 @@ class produtosApiController extends Controller
     public function update(Request $request, $id)
     {
         $produto = Produtos::find($id);
-        
-        if($produto){
 
+        if($produto){
             $json = $request->getContent();
             $atualizacao = json_decode($json, JSON_OBJECT_AS_ARRAY);
             $produto->nome = $atualizacao['nome'];
             $produto->descricao = $atualizacao['descricao'];
             $produto->preco = $atualizacao['preco'];
-
-            $ret = $produto->update() ? [$id => 'atualizado'] : [$id => 'erro ao atualizar'];
-            
-
-        }else {
-            return json_encode([$id =>'não existe']);
-
-        }return json_encode($ret); 
+            $ret = $produto->update() ? [$id => 'atualizado!'] : [$id => 'erro ao atualizar!'];
+        } else {
+            $ret = [$id => 'não existe!'];
+        }
+        return json_encode($ret);
     }
-    
 
     /**
      * Remove the specified resource from storage.
@@ -108,16 +102,11 @@ class produtosApiController extends Controller
     {
         $produto = Produtos::find($id);
 
-        if($produto){
+        if($produto) {
             $ret = $produto->delete() ? [$id => 'apagado'] : [$id => 'erro ao apagar'];
-
-
-
-        }else {
-            $ret = [$id => 'não existe'];
-
+        } else {
+            $ret = [$id => 'Não existe!'];
         }
         return json_encode($ret);
     }
-    }
-
+}

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Vendedores;
 
-class vendedoresApiController extends Controller
+class VendedoresApiController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -37,9 +37,7 @@ class vendedoresApiController extends Controller
     {
         $json = $request->getContent();
 
-        return Vendedores::create(
-                                json_decode($json, JSON_OBJECT_AS_ARRAY)
-                                );
+        return Vendedores::create(json_decode($json, JSON_OBJECT_AS_ARRAY));
     }
 
     /**
@@ -51,10 +49,11 @@ class vendedoresApiController extends Controller
     public function show($id)
     {
         $vendedor = Vendedores::find($id);
-        if($vendedor){
+
+        if($vendedor) {
             return $vendedor;
-        }else{
-            return json_encode([$id =>'não existe']);
+        } else {
+            return json_encode([$id => 'não existe!']);
         }
     }
 
@@ -79,20 +78,17 @@ class vendedoresApiController extends Controller
     public function update(Request $request, $id)
     {
         $vendedor = Vendedores::find($id);
-        
-        if($vendedor){
 
+        if($vendedor){
             $json = $request->getContent();
             $atualizacao = json_decode($json, JSON_OBJECT_AS_ARRAY);
             $vendedor->nome = $atualizacao['nome'];
             $vendedor->matricula = $atualizacao['matricula'];
-            $ret = $vendedor->update() ? [$id => 'atualizado'] : [$id => 'erro ao atualizar'];
-            
-
-        }else {
-            return json_encode([$id =>'não existe']);
-
-        }return json_encode($ret); 
+            $ret = $vendedor->update() ? [$id => 'atualizado!'] : [$id => 'erro ao atualizar!'];
+        } else {
+            $ret = [$id => 'não existe!'];
+        }
+        return json_encode($ret);
     }
 
     /**
@@ -105,14 +101,10 @@ class vendedoresApiController extends Controller
     {
         $vendedor = Vendedores::find($id);
 
-        if($vendedor){
+        if($vendedor) {
             $ret = $vendedor->delete() ? [$id => 'apagado'] : [$id => 'erro ao apagar'];
-
-
-
-        }else {
-            $ret = [$id => 'não existe'];
-
+        } else {
+            $ret = [$id => 'Não existe!'];
         }
         return json_encode($ret);
     }

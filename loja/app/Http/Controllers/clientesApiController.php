@@ -3,9 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Clientes;
 
-class clientesApiController extends Controller
+class ClientesApiController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         return Clientes::all();
@@ -29,12 +35,9 @@ class clientesApiController extends Controller
      */
     public function store(Request $request)
     {
-        
         $json = $request->getContent();
 
-        return Clientes::create(
-                                json_decode($json, JSON_OBJECT_AS_ARRAY)
-                                );
+        return Clientes::create(json_decode($json, JSON_OBJECT_AS_ARRAY));
     }
 
     /**
@@ -45,11 +48,12 @@ class clientesApiController extends Controller
      */
     public function show($id)
     {
-        $cliente = Produtos::find($id);
-        if($cliente){
+        $cliente = Clientes::find($id);
+
+        if($cliente) {
             return $cliente;
-        }else{
-            return json_encode([$id =>'não existe']);
+        } else {
+            return json_encode([$id => 'não existe!']);
         }
     }
 
@@ -74,26 +78,20 @@ class clientesApiController extends Controller
     public function update(Request $request, $id)
     {
         $cliente = Clientes::find($id);
-        
-        if($cliente){
 
+        if($cliente){
             $json = $request->getContent();
             $atualizacao = json_decode($json, JSON_OBJECT_AS_ARRAY);
             $cliente->nome = $atualizacao['nome'];
-            $cliente->endereco = $atualizacao['endereco'];
-            $cliente->telefone = $atualizacao['telefone'];
             $cliente->email = $atualizacao['email'];
-
-
-            $ret = $cliente->update() ? [$id => 'atualizado'] : [$id => 'erro ao atualizar'];
-            
-
-        }else {
-            return json_encode([$id =>'não existe']);
-
-        }return json_encode($ret); 
+            $cliente->telefone = $atualizacao['telefone'];
+            $cliente->endereco = $atualizacao['endereco'];
+            $ret = $cliente->update() ? [$id => 'atualizado!'] : [$id => 'erro ao atualizar!'];
+        } else {
+            $ret = [$id => 'não existe!'];
+        }
+        return json_encode($ret);
     }
-    
 
     /**
      * Remove the specified resource from storage.
@@ -105,16 +103,11 @@ class clientesApiController extends Controller
     {
         $cliente = Clientes::find($id);
 
-        if($cliente){
+        if($cliente) {
             $ret = $cliente->delete() ? [$id => 'apagado'] : [$id => 'erro ao apagar'];
-
-
-
-        }else {
-            $ret = [$id => 'não existe'];
-
+        } else {
+            $ret = [$id => 'Não existe!'];
         }
         return json_encode($ret);
     }
-    }
-
+}
