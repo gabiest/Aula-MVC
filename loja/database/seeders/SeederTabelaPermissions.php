@@ -4,9 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
 
-class SeederTablePermissions extends Seeder
+class SeederTabelaPermissions extends Seeder
 {
     /**
      * Run the database seeds.
@@ -42,9 +41,11 @@ class SeederTablePermissions extends Seeder
             'produtos-delete',
             'produtos-create'
         ];
+        
         //loop para popular o banco de acordo com o que está no vetor
         foreach($permissions as $permission) {
             Permission::create(['name' => $permission]); //e cada interação vai colocar no campo name da model permission (pega a permissão e coloca no campo NAME)
         }
+    
     }
 }
