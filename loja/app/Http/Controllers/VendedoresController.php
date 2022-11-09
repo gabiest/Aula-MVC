@@ -21,6 +21,20 @@ class VendedoresController extends Controller
                          ['only' => ['destroy']]);
     }
 
+    public function checkVendedor( int $idVendedor ):bool{
+
+        $vendendores = [ 1 => 'Luiza',
+                         2 => 'Lucas',
+                         3 => 'Laura'];
+
+        return array_key_exists($idVendedor,$vendedores);
+        
+    }
+
+    public function getVendedor (int $idVendedor): ?string{
+        return null;
+    }
+
     /**
      * Display a listing of the resource.
      *
